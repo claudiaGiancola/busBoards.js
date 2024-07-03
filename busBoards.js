@@ -2,6 +2,7 @@
 //You only need access to the "Core datasets"
 //?app_key=9b19a4b125774e6085105a2cabd9fc28
 //test stop code: 490008660N
+//stop type of tfl api: NaptanPublicBusCoachTram
 
 import fetch from "node-fetch";
 
@@ -12,28 +13,40 @@ const prompt = require("prompt-sync")();
 
 const userStop = prompt("Please insert stop code: ");
 
-fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`)
-    .then(response => response.json())
-    .then(body => { 
+let body;
+
+try {
+    const response = await fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`);
+    body = response;
+    if (response.status !== "200") {
+        throw "Error";
+    }
+    console.log(body);
+} catch (error) {
+    console.log(error);
+}
+console.log("Ok!")
+
+    // .then(response => response.json())
+    // .then(body => { 
         
-        //creates array of arrays containing bus line name and its relative time to station
-        const busArr = [];
-        for (let bus of body) {
-        busArr.push([bus["lineName"], bus["timeToStation"]]); 
-        }
+    //     //creates array of arrays containing bus line name and its relative time to station
+    //     const busArr = [];
+    //     for (let bus of body) {
+    //     busArr.push([bus["lineName"], bus["timeToStation"]]); 
+    //     }
         
-        console.log(busArr);
+    //     console.log(busArr);
 
-        //sorts the bus array in ascending order
-        busArr.sort(function(a, b) {
-            return a[1] - b[1];
-        });
+    //     //sorts the bus array in ascending order
+    //     busArr.sort(function(a, b) {
+    //         return a[1] - b[1];
+    //     });
 
-        console.log(busArr);
+    //     console.log(busArr);
 
-        //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
-        for (let i = 0; i < 5; i++) {
-        console.log(`The Bus number ${busArr[i][0]} is due at ${userStop} in ${Math.floor(busArr[i][1] / 60)} minutes`);
-        }
-    });
-
+    //     //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
+    //     for (let i = 0; i < 5; i++) {
+    //     console.log(`The Bus number ${busArr[i][0]} is due at ${userStop} in ${Math.floor(busArr[i][1] / 60)} minutes`);
+    //     }
+    // });
