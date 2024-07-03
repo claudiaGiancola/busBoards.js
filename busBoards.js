@@ -14,4 +14,22 @@ const userStop = prompt("Please insert stop code: ");
 
 fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`)
     .then(response => response.json())
-    .then(body => console.log(body));
+    .then(body => { 
+        
+        //creates array of arrays containing bus line name and its relative time to station
+        const busArr = [];
+        for (let bus of body) {
+        busArr.push([bus["lineName"], bus["timeToStation"]]); 
+        }
+        
+        //sorts the bus array in descending order
+        busArr.sort(function(a, b) {
+            return b[1] - a[1];
+        });
+
+        //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
+        for (let i = 0; i < 5; i++) {
+        console.log(`The Bus number ${busArr[i][0]} is due at ${userStop} in ${Math.floor(busArr[i][1] / 60)} minutes`);
+        }
+    });
+
