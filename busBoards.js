@@ -22,10 +22,14 @@ fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`)
         busArr.push([bus["lineName"], bus["timeToStation"]]); 
         }
         
-        //sorts the bus array in descending order
+        console.log(busArr);
+
+        //sorts the bus array in ascending order
         busArr.sort(function(a, b) {
-            return b[1] - a[1];
+            return a[1] - b[1];
         });
+
+        console.log(busArr);
 
         //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
         for (let i = 0; i < 5; i++) {
