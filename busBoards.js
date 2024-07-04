@@ -13,19 +13,24 @@ const prompt = require("prompt-sync")();
 
 const userStop = prompt("Please insert stop code: ");
 
-let body;
+async function getStopInfo() {
 
-try {
-    const response = await fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`);
-    body = response;
-    if (response.status !== "200") {
-        throw "Error";
+    let body;
+
+    try {
+        const response = await fetch(`https://api.tfl.gov.uk/StopPoint/${userStop}/Arrivals`);
+        body = await response.json();
+        if (response.status !== 200) {
+            throw "Error";
+        }
+        console.log(body);
+    } catch (error) {
+        console.log(error);
     }
-    console.log(body);
-} catch (error) {
-    console.log(error);
+
 }
-console.log("Ok!")
+
+getStopInfo();
 
     // .then(response => response.json())
     // .then(body => { 
