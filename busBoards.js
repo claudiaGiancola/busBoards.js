@@ -14,11 +14,13 @@ const prompt = require("prompt-sync")();
 
 const userPostcode = prompt("Please insert a postcode: ");
 
-const coordinates = {};
+let postcodeBody;
+let coordinateBody;
+let longitude;
+let latitude;
 
 async function getCoordinate() {
-    let postcodeBody;
-
+    
     try {
         const response = await fetch(`https://api.postcodes.io/postcodes/${userPostcode}`);
         postcodeBody = await response.json();
@@ -26,23 +28,30 @@ async function getCoordinate() {
             throw "Error";
         } 
         
-        coordinates["longitude"] = postcodeBody["result"]["longitude"];
-        coordinates["latitude"] = postcodeBody["result"]["latitude"];
+        const fetchPromise = new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(postcodeBody);
+            }, 1000);
+          });
 
-        console.log(coordinates);
+        const result = await fetchPromise;
 
-        return coordinates;
+        coordinateBody = result;
+        longitude = coordinateBody["result"]["longitude"];
+        latitude = coordinateBody["result"]["latitude"]; 
 
         } catch (error) {
             console.log(error);
         }
 }
 
-getCoordinate();
-console.log(coordinates);
+getCoordinate().then(() => {
+    console.log(longitude);
+    console.log(latitude);
+    get2StopPoints(longitude, latitude);
+});
 
-
-async function get2StopPoints([longitude, latitude]) {    
+async function get2StopPoints(longitude, latitude) { 
 
     let stopPointsBody;
 
@@ -52,20 +61,26 @@ async function get2StopPoints([longitude, latitude]) {
         // if (response.status !== 200) {
         //     throw "Error";
         // }
+        
+        const fetchPromise = new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(stopPointsBody);
+            }, 1000);
+          })
 
-        console.log(stopPointsBody);
+        const result = await fetchPromise;
 
-        // const stopPoint1 = stopPointsBody["stopPoints"][0]["naptanId"];
-        // const stopPoint2 = stopPointsBody["stopPoints"][1]["naptanId"];
+        // console.log(result);
 
-        // console.log(stopPoint1, stopPoint2);
+        const stopPoint1 = result["stopPoints"][0]["naptanId"];
+        const stopPoint2 = result["stopPoints"][1]["naptanId"];
+
+        console.log(stopPoint1, stopPoint2);
 
 } catch (error) {
     console.log(error);
 }
 }
-
-// get2StopPoints(longitude, latitude);
 
 // function getFiveStops(body) {
 
