@@ -12,7 +12,11 @@ const require = createRequire(import.meta.url);
 
 const prompt = require("prompt-sync")();
 
-const userPostcode = prompt("Please insert a postcode: ");
+let userPostcode = prompt("Please insert a postcode: ").toUpperCase();
+
+while (!userPostcode.match(/^(GIR 0AA|[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2})$/)) {
+    userPostcode = prompt("Please try again: ").toUpperCase();
+}
 
 let postcodeBody;
 let coordinateBody;
@@ -49,8 +53,6 @@ async function getCoordinate() {
 }
 
 getCoordinate().then(() => {
-    console.log(longitude);
-    console.log(latitude);
     get2StopPoints(longitude, latitude).then(() => {
     getStopInfo(stopPoint1, 0);
     getStopInfo(stopPoint2, 1)} );
@@ -79,8 +81,6 @@ async function get2StopPoints(longitude, latitude) {
 
         stopPoint1 = result["stopPoints"][0]["naptanId"];
         stopPoint2 = result["stopPoints"][1]["naptanId"];
-
-        console.log(stopPoint1, stopPoint2);
 
 } catch (error) {
     console.log(error);
