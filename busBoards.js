@@ -1,10 +1,3 @@
-//GOAL: ask the user for a stop code, and print a list of the next five buses at that stop code, with their routes, destinations, and the time until they arrive in minutes.
-//You only need access to the "Core datasets"
-//?app_key=9b19a4b125774e6085105a2cabd9fc28
-//test stop code: 490008660N
-//stop type of tfl api: NaptanPublicBusCoachTram
-//implement error handling
-
 import fetch from "node-fetch";
 
 import { createRequire } from "module";
@@ -52,12 +45,6 @@ async function getCoordinate() {
         }
 }
 
-getCoordinate().then(() => {
-    get2StopPoints(longitude, latitude).then(() => {
-    getStopInfo(stopPoint1, 0);
-    getStopInfo(stopPoint2, 1)} );
-});
-
 async function get2StopPoints(longitude, latitude) { 
 
     let stopPointsBody;
@@ -76,8 +63,6 @@ async function get2StopPoints(longitude, latitude) {
           })
 
         result = await fetchPromise;
-
-        // console.log(result);
 
         stopPoint1 = result["stopPoints"][0]["naptanId"];
         stopPoint2 = result["stopPoints"][1]["naptanId"];
@@ -123,3 +108,12 @@ async function getStopInfo(stopPoint, index) {
     }
 
 }
+
+getCoordinate().then(() => {
+    get2StopPoints(longitude, latitude).then(() => {
+    getStopInfo(stopPoint1, 0);
+    if (stopPoint2) {
+       getStopInfo(stopPoint2, 1); 
+    }
+    } )
+});
