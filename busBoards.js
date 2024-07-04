@@ -14,6 +14,8 @@ const prompt = require("prompt-sync")();
 
 const userPostcode = prompt("Please insert a postcode: ");
 
+const coordinates = {};
+
 async function getCoordinate() {
     let postcodeBody;
 
@@ -23,10 +25,13 @@ async function getCoordinate() {
         if (response.status !== 200) {
             throw "Error";
         } 
-            const longitude = postcodeBody["result"]["longitude"];
-            const latitude = postcodeBody["result"]["latitude"];
+        
+        coordinates["longitude"] = postcodeBody["result"]["longitude"];
+        coordinates["latitude"] = postcodeBody["result"]["latitude"];
 
-            console.log(longitude, latitude);
+        console.log(coordinates);
+
+        return coordinates;
 
         } catch (error) {
             console.log(error);
@@ -34,6 +39,33 @@ async function getCoordinate() {
 }
 
 getCoordinate();
+console.log(coordinates);
+
+
+async function get2StopPoints([longitude, latitude]) {    
+
+    let stopPointsBody;
+
+    try {
+        const response = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${latitude}&lon=${longitude}&stopTypes=NaptanPublicBusCoachTram`);
+        stopPointsBody = await response.json();
+        // if (response.status !== 200) {
+        //     throw "Error";
+        // }
+
+        console.log(stopPointsBody);
+
+        // const stopPoint1 = stopPointsBody["stopPoints"][0]["naptanId"];
+        // const stopPoint2 = stopPointsBody["stopPoints"][1]["naptanId"];
+
+        // console.log(stopPoint1, stopPoint2);
+
+} catch (error) {
+    console.log(error);
+}
+}
+
+// get2StopPoints(longitude, latitude);
 
 // function getFiveStops(body) {
 
