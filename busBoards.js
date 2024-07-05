@@ -63,11 +63,17 @@ async function get2StopPoints(longitude, latitude) {
           })
 
         result = await fetchPromise;
-
-        stopPoint1 = result["stopPoints"][0]["naptanId"];
-        stopPoint2 = result["stopPoints"][1]["naptanId"];
-
-} catch (error) {
+        
+        try {
+            stopPoint1 = result["stopPoints"][0]["naptanId"];
+            stopPoint2 = result["stopPoints"][1]["naptanId"];
+            if (!result["stopPoints"][0]) {
+                throw "Error"
+            }
+         } catch (error) {
+                console.log("There seem to be no TFL bus stops near you.");
+            }
+        } catch (error) {
     console.log(error);
 }
 }
