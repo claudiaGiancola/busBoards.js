@@ -18,6 +18,8 @@ let latitude;
 let stopPoint1;
 let stopPoint2;
 let result;
+let userInputDirection;
+let userInputDestination;
 
 async function getCoordinate() {
     
@@ -115,11 +117,74 @@ async function getStopInfo(stopPoint, index) {
 
 }
 
-getCoordinate().then(() => {
-    get2StopPoints(longitude, latitude).then(() => {
-    getStopInfo(stopPoint1, 0);
-    if (stopPoint2) {
-       getStopInfo(stopPoint2, 1); 
+    //for step in directionBody["journeys"][0]["legs"][0]["instruction"]["steps"]
+async function getDirections(naptanId) {
+
+    console.log(naptanId);
+
+    let directionsBody;
+
+    try {
+        const responseDir = await fetch(`https://api.tfl.gov.uk/Journey/JourneyResults/${userPostcode}/to/${naptanId}`);
+        directionsBody = await responseDir.json();
+        // if (response.status !== 200) {
+        //     throw "Error";
+        // } 
+        
+        const fetchPromiseDir = new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(directionsBody);
+            }, 1000);
+          });
+
+        const directionResult = await fetchPromiseDir;
+
+        const directionSteps = directionResult["journeys"][0]["legs"][0]["instruction"]["steps"];
+
+        for (let y = 0; y < directionSteps.length; y++) {
+            console.log(directionSteps[y]["descriptionHeading"] + " " + directionSteps[y]["description"]);
+        }
+
+    } catch (error) {
+        console.log(error);
     }
-    } )
+}
+
+//takes postcode and shows directions for closes naptan id
+function getUserPreferences() {
+
+    do {
+        userInputDirection = prompt("Would you like directions to a bus stop? Y/N ").toUpperCase();
+        // console.log(userInputDirection);
+    } while (userInputDirection !== "Y" && userInputDirection !== "N");
+    
+    if (userInputDirection === "N") {
+        console.log("kbye");
+        return;
+    } else if (userInputDirection === "Y") {
+        do {
+            userInputDestination = prompt(`Please enter 1 for ${result["stopPoints"][0]["commonName"]} or 2 for ${result["stopPoints"][1]["commonName"]}: `);
+            // console.log(userInputDestination);
+        } while (userInputDestination !== "1" && userInputDestination !== "2");
+        
+        if (userInputDestination === "1") {
+            getDirections(stopPoint1);
+        } else if (userInputDirection === "2") {
+            getDirections(stopPoint2);
+        } 
+
+    }
+}    
+
+getCoordinate().then(() => {
+    get2StopPoints(longitude, latitude)
+    .then(() => {
+        getStopInfo(stopPoint1, 0)
+        .then(() => {
+            getStopInfo(stopPoint2, 1)
+            .then(() => {
+                    getUserPreferences();
+                });
+            } )
+        } )
 });
