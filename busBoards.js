@@ -22,32 +22,32 @@ let userInputDirection;
 let userInputDestination;
 
 async function getCoordinate() {
-    
+
     try {
         const response = await fetch(`https://api.postcodes.io/postcodes/${userPostcode}`);
         postcodeBody = await response.json();
         if (response.status !== 200) {
             throw "Error";
-        } 
-        
+        }
+
         const fetchPromise = new Promise((resolve) => {
             setTimeout(() => {
-              resolve(postcodeBody);
+                resolve(postcodeBody);
             }, 1000);
-          });
+        });
 
         const result = await fetchPromise;
 
         coordinateBody = result;
         longitude = coordinateBody["result"]["longitude"];
-        latitude = coordinateBody["result"]["latitude"]; 
+        latitude = coordinateBody["result"]["latitude"];
 
-        } catch (error) {
-            console.log(error);
-        }
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-async function get2StopPoints(longitude, latitude) { 
+async function get2StopPoints(longitude, latitude) {
 
     let stopPointsBody;
 
@@ -57,46 +57,46 @@ async function get2StopPoints(longitude, latitude) {
         // if (response.status !== 200) {
         //     throw "Error";
         // }
-        
+
         const fetchPromise = new Promise((resolve) => {
             setTimeout(() => {
-              resolve(stopPointsBody);
+                resolve(stopPointsBody);
             }, 1000);
-          })
+        })
 
         result = await fetchPromise;
-        
+
         try {
             stopPoint1 = result["stopPoints"][0]["naptanId"];
             stopPoint2 = result["stopPoints"][1]["naptanId"];
             if (!result["stopPoints"][0]) {
                 throw "Error"
             }
-         } catch (error) {
-                console.log("There seem to be no TFL bus stops near you.");
-            }
         } catch (error) {
-    console.log(error);
-}
+            console.log("There seem to be no TFL bus stops near you.");
+        }
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 function getFiveBuses(body, stopPoint, index) {
 
-        //creates array of arrays containing bus line name and its relative time to station
-        const busArr = [];
-        for (let bus of body) {
-        busArr.push([bus["lineName"], bus["timeToStation"]]); 
-        }
-        
-        //sorts the bus array in ascending order
-        busArr.sort(function(a, b) {
-            return a[1] - b[1];
-        });
+    //creates array of arrays containing bus line name and its relative time to station
+    const busArr = [];
+    for (let bus of body) {
+        busArr.push([bus["lineName"], bus["timeToStation"]]);
+    }
 
-        //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
-        for (let i = 0; i < 5; i++) {
+    //sorts the bus array in ascending order
+    busArr.sort(function (a, b) {
+        return a[1] - b[1];
+    });
+
+    //prints out the next 5 buses at the chosen stop (converting seconds in minutes)
+    for (let i = 0; i < 5; i++) {
         console.log(`The Bus number ${busArr[i][0]} is due at ${result["stopPoints"][index]["commonName"]} (${result["stopPoints"][index]["indicator"]}) in ${Math.floor(busArr[i][1] / 60)} minutes`);
-        }
+    }
 }
 
 async function getStopInfo(stopPoint, index) {
@@ -117,10 +117,10 @@ async function getStopInfo(stopPoint, index) {
 
 }
 
-    //for step in directionBody["journeys"][0]["legs"][0]["instruction"]["steps"]
+//for step in directionBody["journeys"][0]["legs"][0]["instruction"]["steps"]
 async function getDirections(naptanId) {
 
-    console.log(naptanId);
+    // console.log(naptanId);
 
     let directionsBody;
 
@@ -130,12 +130,12 @@ async function getDirections(naptanId) {
         // if (response.status !== 200) {
         //     throw "Error";
         // } 
-        
+
         const fetchPromiseDir = new Promise((resolve) => {
             setTimeout(() => {
-              resolve(directionsBody);
+                resolve(directionsBody);
             }, 1000);
-          });
+        });
 
         const directionResult = await fetchPromiseDir;
 
@@ -150,14 +150,14 @@ async function getDirections(naptanId) {
     }
 }
 
-//takes postcode and shows directions for closes naptan id
+//takes postcode and shows directions for closer naptan id
 function getUserPreferences() {
 
     do {
         userInputDirection = prompt("Would you like directions to a bus stop? Y/N ").toUpperCase();
         // console.log(userInputDirection);
     } while (userInputDirection !== "Y" && userInputDirection !== "N");
-    
+
     if (userInputDirection === "N") {
         console.log("kbye");
         return;
@@ -166,25 +166,22 @@ function getUserPreferences() {
             userInputDestination = prompt(`Please enter 1 for ${result["stopPoints"][0]["commonName"]} or 2 for ${result["stopPoints"][1]["commonName"]}: `);
             // console.log(userInputDestination);
         } while (userInputDestination !== "1" && userInputDestination !== "2");
-        
+
         if (userInputDestination === "1") {
             getDirections(stopPoint1);
-        } else if (userInputDirection === "2") {
+        } else if (userInputDestination === "2") {
             getDirections(stopPoint2);
-        } 
+        }
 
     }
-}    
+}
 
-getCoordinate().then(() => {
-    get2StopPoints(longitude, latitude)
-    .then(() => {
-        getStopInfo(stopPoint1, 0)
-        .then(() => {
-            getStopInfo(stopPoint2, 1)
-            .then(() => {
-                    getUserPreferences();
-                });
-            } )
-        } )
-});
+async function main() {
+    await getCoordinate();
+    await get2StopPoints(longitude, latitude);
+    await getStopInfo(stopPoint1, 0);
+    await getStopInfo(stopPoint2, 1);
+    getUserPreferences();
+}
+
+main();
